@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Система учёта заявок на ремонт электрооборудования</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Подключаем Font Awesome для иконок -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Шапка приложения -->
+        <header class="header">
+            <h1>
+                <i class="fas fa-tools"></i> 
+                Система учёта заявок на ремонт электрооборудования
+            </h1>
+            <p class="subtitle">Управление заявками на ремонт и обслуживание</p>
+        </header>
+
+        <!-- Панель управления -->
+        <div class="control-panel">
+            <button class="btn btn-primary" id="showAddModalBtn">
+                <i class="fas fa-plus"></i> Создать заявку
+            </button>
+            <div class="filters">
+                <select id="statusFilter" class="filter-select">
+                    <option value="all">Все статусы</option>
+                    <option value="new">Новая</option>
+                    <option value="in_progress">В работе</option>
+                    <option value="completed">Выполнена</option>
+                    <option value="cancelled">Отменена</option>
+                </select>
+                <input type="text" id="searchInput" placeholder="Поиск по оборудованию..." class="search-input">
+            </div>
+        </div>
+
+        <!-- Статистика -->
+        <div class="stats-container" id="statsContainer">
+            <!-- Статистика будет загружена через JavaScript -->
+        </div>
+
+        <!-- Таблица заявок -->
+        <div class="table-container">
+            <table class="requests-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Оборудование</th>
+                        <th>Тип оборудования</th>
+                        <th>Описание проблемы</th>
+                        <th>Приоритет</th>
+                        <th>Статус</th>
+                        <th>Дата создания</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="requestsTableBody">
+                    <!-- Данные будут загружены через JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Модальное окно для создания/редактирования заявки -->
+    <div id="requestModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Создание заявки</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="requestForm">
+                <input type="hidden" id="requestId">
+                
+                <div class="form-group">
+                    <label for="equipmentName">Наименование оборудования *</label>
+                    <input type="text" id="equipmentName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="equipmentType">Тип оборудования *</label>
+                    <select id="equipmentType" required>
+                        <option value="">Выберите тип</option>
+                        <option value="Трансформатор">Трансформатор</option>
+                        <option value="Электродвигатель">Электродвигатель</option>
+                        <option value="Распределительный щит">Распределительный щит</option>
+                        <option value="Кабельная линия">Кабельная линия</option>
+                        <option value="Осветительное оборудование">Осветительное оборудование</option>
+                        <option value="Измерительный прибор">Измерительный прибор</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="problemDescription">Описание проблемы *</label>
+                    <textarea id="problemDescription" rows="3" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="priority">Приоритет *</label>
+                    <select id="priority" required>
+                        <option value="low">Низкий</option>
+                        <option value="medium">Средний</option>
+                        <option value="high">Высокий</option>
+                        <option value="critical">Критический</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="status">Статус</label>
+                    <select id="status">
+                        <option value="new">Новая</option>
+                        <option value="in_progress">В работе</option>
+                        <option value="completed">Выполнена</option>
+                        <option value="cancelled">Отменена</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="responsiblePerson">Ответственное лицо</label>
+                    <input type="text" id="responsiblePerson" placeholder="ФИО ответственного">
+                </div>
+
+                <div class="form-buttons">
+                    <button type="submit" class="btn btn-success">Сохранить</button>
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно для просмотра деталей -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Детали заявки</h2>
+                <span class="close-details">&times;</span>
+            </div>
+            <div id="detailsContent"></div>
+        </div>
+    </div>
+
+    <script src="js/storage.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
