@@ -19,41 +19,62 @@ class RepairRequestsApp {
     // Привязка обработчиков событий
     bindEvents() {
         // Кнопка создания заявки
-        document.getElementById('showAddModalBtn').addEventListener('click', () => {
-            this.showModal();
-        });
+        const addBtn = document.getElementById('showAddModalBtn');
+        if (addBtn) {
+            addBtn.addEventListener('click', () => {
+                this.showModal();
+            });
+        }
 
         // Фильтр по статусу
-        document.getElementById('statusFilter').addEventListener('change', (e) => {
-            this.currentFilters.status = e.target.value;
-            this.loadData();
-        });
+        const statusFilter = document.getElementById('statusFilter');
+        if (statusFilter) {
+            statusFilter.addEventListener('change', (e) => {
+                this.currentFilters.status = e.target.value;
+                this.loadData();
+            });
+        }
 
         // Поиск
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            this.currentFilters.search = e.target.value;
-            this.loadData();
-        });
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                this.currentFilters.search = e.target.value;
+                this.loadData();
+            });
+        }
 
         // Форма создания/редактирования
-        document.getElementById('requestForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.saveRequest();
-        });
+        const form = document.getElementById('requestForm');
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.saveRequest();
+            });
+        }
 
         // Кнопка отмены
-        document.getElementById('cancelBtn').addEventListener('click', () => {
-            this.closeModal();
-        });
+        const cancelBtn = document.getElementById('cancelBtn');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
+                this.closeModal();
+            });
+        }
 
         // Закрытие модальных окон
-        document.querySelector('.close').addEventListener('click', () => {
-            this.closeModal();
-        });
+        const closeBtn = document.querySelector('.close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                this.closeModal();
+            });
+        }
 
-        document.querySelector('.close-details').addEventListener('click', () => {
-            this.closeDetailsModal();
-        });
+        const closeDetailsBtn = document.querySelector('.close-details');
+        if (closeDetailsBtn) {
+            closeDetailsBtn.addEventListener('click', () => {
+                this.closeDetailsModal();
+            });
+        }
 
         // Закрытие по клику вне модального окна
         window.addEventListener('click', (e) => {
@@ -91,6 +112,8 @@ class RepairRequestsApp {
     // Отрисовка таблицы
     renderTable(requests) {
         const tbody = document.getElementById('requestsTableBody');
+        
+        if (!tbody) return;
         
         if (requests.length === 0) {
             tbody.innerHTML = `
@@ -131,6 +154,8 @@ class RepairRequestsApp {
     // Отрисовка статистики
     renderStatistics(stats) {
         const container = document.getElementById('statsContainer');
+        if (!container) return;
+        
         container.innerHTML = `
             <div class="stat-card">
                 <h3>Всего заявок</h3>
@@ -210,7 +235,8 @@ class RepairRequestsApp {
     showModal(request = null) {
         const modal = document.getElementById('requestModal');
         const modalTitle = document.getElementById('modalTitle');
-        const form = document.getElementById('requestForm');
+        
+        if (!modal) return;
         
         if (request) {
             modalTitle.textContent = 'Редактирование заявки';
@@ -223,22 +249,35 @@ class RepairRequestsApp {
             document.getElementById('responsiblePerson').value = request.responsiblePerson || '';
         } else {
             modalTitle.textContent = 'Создание заявки';
-            form.reset();
+            document.getElementById('requestForm').reset();
             document.getElementById('requestId').value = '';
-            document.getElementById('status').value = 'new';
+            const statusField = document.getElementById('status');
+            if (statusField) statusField.value = 'new';
         }
         
         modal.style.display = 'block';
     }
 
+    // Редактирование заявки
+    async editRequest(id) {
+        try {
+            const request = await api.getRequestById(id);
+            this.showModal(request);
+        } catch (error) {
+            this.showError('Ошибка загрузки заявки: ' + error.message);
+        }
+    }
+
     // Закрытие модального окна
     closeModal() {
-        document.getElementById('requestModal').style.display = 'none';
+        const modal = document.getElementById('requestModal');
+        if (modal) modal.style.display = 'none';
     }
 
     // Закрытие модального окна деталей
     closeDetailsModal() {
-        document.getElementById('detailsModal').style.display = 'none';
+        const modal = document.getElementById('detailsModal');
+        if (modal) modal.style.display = 'none';
     }
 
     // Сохранение заявки
@@ -274,4 +313,90 @@ class RepairRequestsApp {
     async viewRequest(id) {
         try {
             const request = await api.getRequestById(id);
-            this.show
+            this.showDetails(request);
+        } catch (error) {
+            this.showError('Ошибка загрузки заявки: ' + error.message);
+        }
+    }
+
+    // Показ деталей заявки
+    showDetails(request) {
+        const modal = document.getElementById('detailsModal');
+        const content = document.getElementById('detailsContent');
+        
+        if (!modal || !content) return;
+        
+        content.innerHTML = `
+            <div class="details-section">
+                <div class="detail-row">
+                    <div class="detail-label">ID:</div>
+                    <div class="detail-value">${request.id}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Оборудование:</div>
+                    <div class="detail-value">${this.escapeHtml(request.equipmentName)}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Тип оборудования:</div>
+                    <div class="detail-value">${this.escapeHtml(request.equipmentType)}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Описание проблемы:</div>
+                    <div class="detail-value">${this.escapeHtml(request.problemDescription)}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Приоритет:</div>
+                    <div class="detail-value">${this.getPriorityBadge(request.priority)}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Статус:</div>
+                    <div class="detail-value">${this.getStatusBadge(request.status)}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Ответственное лицо:</div>
+                    <div class="detail-value">${this.escapeHtml(request.responsiblePerson) || 'Не назначено'}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Дата создания:</div>
+                    <div class="detail-value">${this.formatDate(request.createdAt)}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Последнее обновление:</div>
+                    <div class="detail-value">${this.formatDate(request.updatedAt)}</div>
+                </div>
+            </div>
+        `;
+        
+        modal.style.display = 'block';
+    }
+
+    // Удаление заявки
+    async deleteRequest(id) {
+        if (confirm('Вы уверены, что хотите удалить эту заявку?')) {
+            try {
+                await api.deleteRequest(id);
+                this.showSuccess('Заявка успешно удалена');
+                await this.loadData();
+                await this.loadStatistics();
+            } catch (error) {
+                this.showError('Ошибка удаления: ' + error.message);
+            }
+        }
+    }
+
+    // Показ сообщения об успехе
+    showSuccess(message) {
+        alert(message);
+    }
+
+    // Показ сообщения об ошибке
+    showError(message) {
+        alert('Ошибка: ' + message);
+    }
+}
+
+// Создаём глобальный экземпляр приложения
+let app;
+document.addEventListener('DOMContentLoaded', () => {
+    app = new RepairRequestsApp();
+});
