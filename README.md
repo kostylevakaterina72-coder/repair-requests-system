@@ -45,3 +45,27 @@
 ---
 
 ## 📁 Структура проекта
+repair-requests-system/
+├── 📄 index.html # Главная страница
+├── 📁 css/
+│ └── 📄 style.css # Стили приложения
+├── 📁 js/
+│ ├── 📄 storage.js # Модуль работы с localStorage
+│ ├── 📄 api.js # Эмуляция API
+│ └── 📄 app.js # Основная логика
+├── 📁 docs/
+│ └── 📄 technical_specification.md # Техническое задание
+└── 📄 README.md # Описание проекта
+
+---
+
+## 🏗️ Архитектура
+
+```mermaid
+graph LR
+    A[HTML] --> B[CSS стили]
+    A --> C[JavaScript]
+    C --> D[storage.js]
+    C --> E[api.js]
+    C --> F[app.js]
+    D --> G[localStorage]
